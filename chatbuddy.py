@@ -13,32 +13,32 @@ class ChatBuddy(ClientXMPP):
         self.add_event_handler("session_start", self.session_start)
         self.add_event_handler("message", self.message)
 
-	self._last_response = ""
-	self._message_count = 0
+        self._last_response = ""
+        self._message_count = 0
 
-	self._greetings = [\
-	    "Hey, how are you?",
-	    "Hi, how are you today?",
-	    "What's happening?",
-	    "Hello, how are you feeling?",
-	    "Nice to see you online! How has your day been?",
-	    "Hi, what's going on?"
-	]
-	self._responses = [\
-	    "hmm, tell me more",
-	    "uh huh",
-	    "yeah?",
-	    "tell me more about that",
-	    "how does that make you feel?"
-	]
-	self._actions = [\
-	    "what do you think could make you feel better?",
-	    "what could you do now?",
-	    "what are your plans for tomorrow?",
-	    "are you feeling any better?",
-	    "would getting some fresh air help clear your head?",
-	    "is there anything you could do about this?"
-	]
+        self._greetings = [\
+            "Hey, how are you?",
+            "Hi, how are you today?",
+            "What's happening?",
+            "Hello, how are you feeling?",
+            "Nice to see you online! How has your day been?",
+            "Hi, what's going on?"
+        ]
+        self._responses = [\
+            "hmm, tell me more",
+            "uh huh",
+            "yeah?",
+            "tell me more about that",
+            "how does that make you feel?"
+        ]
+        self._actions = [\
+            "what do you think could make you feel better?",
+            "what could you do now?",
+            "what are your plans for tomorrow?",
+            "are you feeling any better?",
+            "would getting some fresh air help clear your head?",
+            "is there anything you could do about this?"
+        ]
 
         # If you wanted more functionality, here's how to register plugins:
         # self.register_plugin('xep_0030') # Service Discovery
@@ -70,36 +70,37 @@ class ChatBuddy(ClientXMPP):
         #     self.disconnect()
 
     def is_greeting(self, message):
-	greetings = ["hi", "Hi", "hello", "Hello"]
-	for greeting in greetings:
-	    if match(r"\b%s\b"%(greeting), message):
-		return True
+        greetings = ["hi", "Hi", "hello", "Hello"]
+        for greeting in greetings:
+            if match(r"\b%s\b"%(greeting), message):
+                return True
 
     def pick_response(self, message):
-	if self.is_greeting(message):
-	    response = choice(self._greetings)
-	else:
-	    if self._message_count > 0 and self._message_count % 5 == 0:
-		response = choice(self._actions)
-	    else:
-		response = choice(self._responses)
-	print "picking %s" % response
-	return response
+        if self.is_greeting(message):
+            response = choice(self._greetings)
+        self._message_count = 0
+        else:
+            if self._message_count % 5 == 0:
+                response = choice(self._actions)
+            else:
+                response = choice(self._responses)
+        print "picking %s" % response
+        return response
 
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):
-	    response = ""
-	    if "feel" in msg['body']:
-		response = "why do you feel that way?"
-	    else:
-		print "last response: %s" % self._last_response
-		while True:
-		    print "response = %s" % response
-		    response = self.pick_response(msg['body'])
-		    if response != self._last_response:
-			break
-	    self._last_response = response
-	    self._message_count += 1
+            response = ""
+            if "feel" in msg['body']:
+                response = "why do you feel that way?"
+            else:
+                print "last response: %s" % self._last_response
+                while True:
+                    print "response = %s" % response
+                    response = self.pick_response(msg['body'])
+                    if response != self._last_response:
+                        break
+            self._last_response = response
+            self._message_count += 1
             msg.reply(response).send()
 
 
