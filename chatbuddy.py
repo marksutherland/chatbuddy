@@ -4,6 +4,7 @@ from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
 from random import choice
 from re import match
+from time import sleep
 
 class ChatBuddy(ClientXMPP):
 
@@ -12,6 +13,15 @@ class ChatBuddy(ClientXMPP):
 
         self.add_event_handler("session_start", self.session_start)
         self.add_event_handler("message", self.message)
+
+        self.register_plugin('xep_0085') # Chat States
+        self.add_event_handler("chatstate_composing", self.composing)
+        self.add_event_handler("chatstate_active", self.active)
+        self.add_event_handler("chatstate_paused", self.paused)
+        self.add_event_handler("chatstate_inactive", self.inactive)
+        self.add_event_handler("chatstate_gone", self.gone)
+
+        self._wait_for_client = False
 
         self._last_response = ""
         self._message_count = 0
@@ -70,7 +80,7 @@ class ChatBuddy(ClientXMPP):
         #     self.disconnect()
 
     def is_greeting(self, message):
-        greetings = ["hi", "Hi", "hello", "Hello"]
+        greetings = ["hi", "Hi", "hello", "Hello", "hey", "Hey"]
         for greeting in greetings:
             if match(r"\b%s\b"%(greeting), message):
                 return True
@@ -78,7 +88,7 @@ class ChatBuddy(ClientXMPP):
     def pick_response(self, message):
         if self.is_greeting(message):
             response = choice(self._greetings)
-        self._message_count = 0
+            self._message_count = 0
         else:
             if self._message_count % 5 == 0:
                 response = choice(self._actions)
@@ -86,6 +96,13 @@ class ChatBuddy(ClientXMPP):
                 response = choice(self._responses)
         print "picking %s" % response
         return response
+
+    def send_reply(self, msg, message):
+        self._last_response = message
+        self._message_count += 1
+        sleep(1)
+        msg.reply(message).send()
+        self._cached_response = ""
 
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):
@@ -99,10 +116,29 @@ class ChatBuddy(ClientXMPP):
                     response = self.pick_response(msg['body'])
                     if response != self._last_response:
                         break
-            self._last_response = response
-            self._message_count += 1
-            msg.reply(response).send()
+            if self._wait_for_client:
+                self._cached_response = response
+            else:
+                self.send_reply(msg, response)
 
+    def composing(self, msg):
+        self._wait_for_client = True
+
+    def active(self, msg):
+        self._wait_for_client = False
+        self.send_reply(msg, self._cached_response)
+
+    def paused(self, msg):
+        self._wait_for_client = False
+        self.send_reply(msg, self._cached_response)
+
+    def gone(self, msg):
+        self._wait_for_client = False
+        self.send_reply(msg, self._cached_response)
+
+    def inactive(self, msg):
+        self._wait_for_client = False
+        self.send_reply(msg, self._cached_response)
 
 if __name__ == '__main__':
     # Ideally use optparse or argparse to get JID,
