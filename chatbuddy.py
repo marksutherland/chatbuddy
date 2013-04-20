@@ -117,9 +117,6 @@ class ChatBuddy(ClientXMPP):
         self.send_reply(msg, self._cached_response)
 
 if __name__ == '__main__':
-    # Ideally use optparse or argparse to get JID,
-    # password, and log level.
-
     parser = OptionParser()
     parser.add_option("-u", "--username", dest="username",
                       help="username for ChatBuddy account") 
