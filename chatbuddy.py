@@ -36,7 +36,8 @@ class ChatBuddy(ClientXMPP):
 	    "what could you do now?",
 	    "what are your plans for tomorrow?",
 	    "are you feeling any better?",
-	    "would getting some fresh air help clear your head?"
+	    "would getting some fresh air help clear your head?",
+	    "is there anything you could do about this?"
 	]
 
         # If you wanted more functionality, here's how to register plugins:
