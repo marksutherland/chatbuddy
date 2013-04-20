@@ -5,6 +5,7 @@ from sleekxmpp.exceptions import IqError, IqTimeout
 from random import choice
 from re import match
 from time import sleep
+from optparse import OptionParser
 
 class ChatBuddy(ClientXMPP):
 
@@ -119,9 +120,16 @@ if __name__ == '__main__':
     # Ideally use optparse or argparse to get JID,
     # password, and log level.
 
+    parser = OptionParser()
+    parser.add_option("-u", "--username", dest="username",
+                      help="username for ChatBuddy account") 
+    parser.add_option("-p", "--password", dest="password",
+                      help="password for ChatBuddy account")
+    (options, args) = parser.parse_args()
+
     logging.basicConfig(level=logging.DEBUG,
                         format='%(levelname)-8s %(message)s')
 
-    xmpp = ChatBuddy('chatbuddy@jabber.org', 'chatbuddy')
+    xmpp = ChatBuddy(options.username, options.password)
     xmpp.connect()
     xmpp.process(block=True)
