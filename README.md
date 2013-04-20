@@ -17,3 +17,5 @@ You can then run chatbuddy like this:
 
 Then, add the chatbuddy@somewhere.com account to your jabber/xmpp/gchat account and
 chat away!
+
+![An example conversation](chat1.png)
