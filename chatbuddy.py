@@ -50,34 +50,9 @@ class ChatBuddy(ClientXMPP):
             "is there anything you could do about this?"
         ]
 
-        # If you wanted more functionality, here's how to register plugins:
-        # self.register_plugin('xep_0030') # Service Discovery
-        # self.register_plugin('xep_0199') # XMPP Ping
-
-        # Here's how to access plugins once you've registered them:
-        # self['xep_0030'].add_feature('echo_demo')
-
-        # If you are working with an OpenFire server, you will
-        # need to use a different SSL version:
-        # import ssl
-        # self.ssl_version = ssl.PROTOCOL_SSLv3
-
     def session_start(self, event):
         self.send_presence()
         self.get_roster()
-
-        # Most get_*/set_* methods from plugins use Iq stanzas, which
-        # can generate IqError and IqTimeout exceptions
-        #
-        # try:
-        #     self.get_roster()
-        # except IqError as err:
-        #     logging.error('There was an error getting the roster')
-        #     logging.error(err.iq['error']['condition'])
-        #     self.disconnect()
-        # except IqTimeout:
-        #     logging.error('Server is taking too long to respond')
-        #     self.disconnect()
 
     def is_greeting(self, message):
         greetings = ["hi", "Hi", "hello", "Hello", "hey", "Hey"]
